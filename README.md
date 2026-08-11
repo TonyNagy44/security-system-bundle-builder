@@ -1,175 +1,125 @@
 # Security System Bundle Builder
 
-A responsive security system bundle builder based on the provided Figma design.
+Build a home security system step by step and watch the summary, savings and total update as you go.
 
-The app lets users build their system step by step, choose product variants and quantities, and see the selected items, pricing, savings, and total update instantly in the review panel.
+This is my implementation of the Figma design that came with the task. Four steps on the left, a live review panel on the right, and one piece of state behind both.
 
-Built with **React, TypeScript, and Vite**, with a lightweight state setup and no UI framework or state management library.
+Built with React, TypeScript and Vite. No UI kit, no state library.
 
----
+## Getting started
 
-## Features
-
-- Multi-step security system builder
-- Product variants and quantity selection
-- Live order summary and pricing
-- Automatic savings calculation
-- Responsive layout for mobile, tablet, and desktop
-- Save and restore the current configuration
-- Local storage persistence
-- Keyboard-friendly controls and accessible interactions
-- Data-driven product catalog
-- Optional API for serving the product catalog
-
----
-
-## Tech Stack
-
-- **React**
-- **TypeScript**
-- **Vite**
-- **CSS**
-- **LocalStorage**
-- **Node.js** — optional catalog API
-
-No external UI library or state management package is required.
-
----
-
-## Getting Started
-
-### Requirements
-
-- Node.js 18+
-- npm
-
-### Installation
-
-Clone the repository and install the dependencies:
+You'll need Node 18 or newer.
 
 ```bash
 git clone https://github.com/TonyNagy44/security-system-bundle-builder.git
 cd security-system-bundle-builder
 npm install
-```
-
-### Run locally
-
-```bash
 npm run dev
 ```
 
-The app will be available at:
+Then open http://localhost:5173.
 
-```text
-http://localhost:5173
-```
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Dev server |
+| `npm run build` | Typecheck and production build |
+| `npm run preview` | Serve the production build |
+| `npm run api` | Optional catalog API on port 8787 |
 
----
+## What it does
 
-## Available Scripts
+**Four step accordion.** Cameras, plan, sensors, extra protection. Step 1 is open when the page loads, and each step has a button that opens the next one.
 
-### Development
+**Quantities per variant.** Black and White of the same camera are counted separately. The stepper on the card follows whichever colour is selected, so if you add 2 White and then switch to Black the stepper shows 0, and the 2 White are still sitting in the review panel on the right.
 
-```bash
-npm run dev
-```
+**Steppers stay in sync.** The one on the card and the one on the review line are the same component reading the same value, so changing either one updates everything.
 
-Starts the Vite development server.
+**Live totals.** Line prices, the crossed out total and the savings line all recalculate whenever a quantity changes.
 
-### Production build
+**Save and restore.** Save your system, close the tab, come back later and it's still there.
 
-```bash
-npm run build
-```
+**Responsive.** Works from 390px up, following the three frames in the design.
 
-Runs the TypeScript checks and creates the production build.
-
-### Preview production build
-
-```bash
-npm run preview
-```
-
-Serves the production build locally.
-
-### Optional API
-
-```bash
-npm run api
-```
-
-Starts the local catalog API on:
-
-```text
-http://localhost:8787
-```
-
----
-
-## 📁 Project Structure
+## Project structure
 
 ```text
 src/
-├── components/
-│   ├── ProductCard
-│   ├── VariantSelector
-│   ├── QuantityStepper
-│   ├── Price
-│   ├── BuilderStep
-│   └── ReviewPanel
-│
-├── state/
-│   ├── builderReducer.ts
-│   ├── selectors.ts
-│   ├── persistence.ts
-│   └── BuilderProvider.tsx
-│
-├── data/
-│   └── catalog.json
-│
+├── data/catalog.json      products, variants, prices, steps, starting state
 ├── types.ts
-└── ...
+├── state/
+│   ├── builderReducer.ts  all the updates
+│   ├── selectors.ts       review lines, counts, totals
+│   ├── persistence.ts     localStorage read and write
+│   └── BuilderProvider.tsx
+└── components/            ProductCard, VariantSelector, QuantityStepper,
+                           Price, BuilderStep, ReviewPanel
 
-server/
-└── index.mjs
+server/index.mjs           optional catalog API, no dependencies
 ```
 
-### Architecture
+### How the state works
 
-The application keeps the builder state in one place using a reducer.
+The whole thing is a reducer over three fields:
 
-The main state contains:
+```ts
+{ quantities, activeVariants, openStepId }
+```
 
-- `quantities`
-- `activeVariants`
-- `openStepId`
+Everything else is calculated from those. The "N selected" counters, the highlighted card borders, the review panel, the total, the savings line, all of it lives in `selectors.ts`. Nothing gets copied into component state, which is the reason the card steppers and the review steppers never drift apart. There is no syncing code because there is nothing to sync.
 
-Everything else, including selected item counts, totals, savings, and the review panel, is calculated from that state.
+### Quantities are keyed by `productId:variantId`
 
-This keeps the product cards and review panel in sync without maintaining duplicate state.
+This is the decision that made the variant requirement easy. Each colour has its own entry, so selecting Black shows Black's count and leaves White alone, and the review panel just lists every key with a count above zero.
 
-The product catalog is also data-driven. Products, variants, prices, and steps live in `catalog.json`, so adding or changing a product does not require changes inside the UI components.
+Products that have no colours still get one variant, with `label: null`. That way there is no "has variants or not" branch in the components. The doorbell shows no colour selector simply because its single variant has no label.
 
----
+### Nothing is hardcoded
 
-## Save & Restore
+No product name appears in any component. To add a camera you add an object to `catalog.json` and the card, the review line, the counter and the total all pick it up.
 
-The **Save my system for later** action stores the current configuration in `localStorage`.
+## Decisions I had to make
 
-When the application starts, it checks for a previously saved configuration and restores it when available.
+A few things in the design needed a call from me. Here they are.
 
-Saved data is validated before being used, so outdated or invalid product and variant IDs don't break the application.
+### The prices in the mock don't add up
 
----
+Wyze Cam Pan v3 shows `$39.98 → $34.98` on the card, but its review line at quantity 2 shows `$57.98 → $47.98`. Neither one is double the other. Every other product in the design multiplies correctly.
+
+The total has to be calculated from unit prices, so I had to choose. I treated the unit price as the real one and set Pan v3 to `$28.99 → $23.99`. That keeps six numbers from the design correct (both Pan v3 review prices, `$238.81`, `$187.89` and the `$50.92` savings line) and only changes one, the price on the card. Going the other way would have broken the review line, the total and the savings message all at once.
+
+If you prefer the other reading, it's two values in `catalog.json` and nothing else changes.
+
+### Shipping shows a discount but isn't counted
+
+`$238.81` is the sum of the item compare prices without the crossed out `$5.99` shipping. Adding shipping in would make it `$244.80`. So shipping renders as a row and contributes nothing to the totals. It's a flag in the data (`shipping.includeInTotals: false`) rather than a special case in the code.
+
+### The monthly plan price is part of the total
+
+`$9.99/mo` is included in `$187.89` in the design. Putting a monthly charge into a one time total is a bit odd in real life, but that's what the design does, so I matched it instead of fixing it on my own.
+
+### Steps 2 to 4 had no design
+
+Only step 1 is open in the frames I was given. I filled the other steps with the items the review panel already implies (Cam Unlimited, Sense Hub, Motion Sensor, MicroSD card) plus two extra plan options, all using the same card component. I didn't invent products I had no images for.
+
+The plan step is marked `selection: "single"` in the data, so picking one clears the others, and plan cards show a Select button instead of a stepper. Buying three subscriptions doesn't make sense.
+
+### "N selected" counts products, not variants
+
+That's how the task describes it, and it matches every count in all three frames. Two colours of one camera still counts as one. If you want it counting variants instead, it's one line in `stepSelectedCount`.
+
+### The counter shows up differently per breakpoint
+
+In the mobile frame the count appears on collapsed steps. On tablet and desktop the collapsed steps only show a chevron. I followed both. The chevron directions in the mobile frame don't match the open and closed states, so I treated that as a mock detail and bound them to the real state.
+
+### Saving is a deliberate action
+
+Nothing saves automatically. Clicking **Save my system for later** writes to localStorage under a versioned key, and on load a saved system takes priority over the default one.
+
+What comes back gets checked first. Unknown product or variant IDs, quantities that aren't numbers and step IDs that no longer exist are dropped, so changing the catalog later can't bring back a deleted product or leave the app in a state it can't render. The write is wrapped in a try/catch too, so private browsing gives you a message instead of a broken page.
 
 ## Fonts
 
-The original design uses **Gilroy Medium** and **Gilroy SemiBold**.
-
-Because Gilroy is a licensed font, it isn't included in the repository.
-
-If you have the font files, place them here:
+The design uses Gilroy Medium and Gilroy SemiBold. Gilroy is a licensed font so I haven't committed it. Drop the files here and the `@font-face` rules will pick them up:
 
 ```text
 public/fonts/
@@ -177,109 +127,49 @@ public/fonts/
 └── Gilroy-SemiBold.woff2
 ```
 
-The existing `@font-face` definitions will pick them up automatically.
-
-Without Gilroy, the project falls back to Poppins.
-
----
+Without them it falls back to Poppins, which is close enough in proportions that the layout doesn't shift.
 
 ## Assets
 
-The images in `public/assets/` were taken from the provided design frames.
+The images in `public/assets/` came out of the exported design frames. The camera photos are fine. The sensor, hub and MicroSD thumbnails are low resolution because that's the size they appear at in the source. Real exports drop straight in with the same filenames.
 
----
+The tiny colour thumbnails inside the chips are about 11px in the frames, too small to pull out, so `VariantSelector` reuses the product photo with a CSS filter per colour. Swap in proper images and the markup stays the same.
 
-## Optional Catalog API
+## Optional catalog API
 
-The project can run either with the bundled catalog or with the optional local API.
-
-Start the API:
+By default the app imports the bundled JSON. To serve the same data from a local API:
 
 ```bash
-npm run api
+npm run api                                        # terminal 1
+VITE_API_URL=http://localhost:8787 npm run dev     # terminal 2
 ```
 
-Then run the application with:
-
-```bash
-VITE_API_URL=http://localhost:8787 npm run dev
-```
-
-If the API isn't configured, the application uses the local `catalog.json`.
-
-If the API is configured but unavailable, the application falls back to the bundled catalog instead of leaving the UI empty.
-
----
-
-## Responsive Design
-
-The layout adapts across the main breakpoints:
-
-- **Mobile:** stacked content and review sections
-- **Tablet:** single-column layout with the review panel below
-- **Desktop:** two-column layout with a sticky review panel
-
-The UI remains usable between the main breakpoints rather than only targeting the exact design sizes.
-
----
+`server/index.mjs` has no dependencies. If the API is configured but not running, the app falls back to the bundled catalog and tells you, rather than showing an empty page.
 
 ## Accessibility
 
-A few accessibility details are built into the UI:
+- Accordion headers are real buttons with `aria-expanded` and `aria-controls`
+- Colour chips work as a radio group
+- Quantity buttons have labels per item and announce changes with `aria-live`
+- Keyboard focus is visible everywhere
+- `prefers-reduced-motion` is respected
 
-- Semantic buttons for accordion controls
-- `aria-expanded` and `aria-controls`
-- Accessible variant selection
-- Labels for quantity controls
-- Live announcements for quantity changes
-- Visible keyboard focus
-- `prefers-reduced-motion` support
+`npm run build` passes with TypeScript strict mode and `noUnusedLocals` on.
 
----
+## A note on how I worked
 
-## Implementation Notes
+I used an AI assistant while building this, mostly for scaffolding, repetitive CSS and a first draft of these docs, and to think out loud while I was working through the pricing problem in the design.
 
-A few details in the provided design required interpretation during implementation.
+The architecture, the data model and the calls above are mine, and I read and adjusted everything before it went in. I also checked the behaviour in the browser instead of assuming it worked. Happy to walk through any part of the code.
 
-### Pricing
+## What I'd do next
 
-Some of the prices shown in the design don't fully line up mathematically. The implementation uses the values that produce the correct review totals and savings shown in the design.
+**Tests.** I checked the important behaviour by hand in the browser (variant counts staying separate, steppers syncing both ways, the counter, save and restore, the locked hub stepper) but didn't set up a test runner. Vitest over the reducer and selectors would be first, since they're pure functions and the totals are where a bug would actually cost money. Then one end to end test for the variant flow.
 
-The Pan v3 pricing can be adjusted directly in:
+**Empty state.** The review panel handles having nothing in it, but the design doesn't show that case, so the wording is mine.
 
-```text
-src/data/catalog.json
-```
+**Motion.** The accordion opens and closes with no height animation. Nothing in the design pointed either way and I'd rather leave it out than invent something.
 
-No component changes are required.
+**Better assets** for the sensor and accessory thumbnails, and a real backend behind the API that's already there.
 
-### Shipping
-
-Shipping is displayed in the review panel but does not contribute to the item totals. This is controlled through the catalog data rather than a hardcoded exception.
-
-### Subscription plan
-
-The monthly plan price is included in the displayed total because that is how it appears in the provided design.
-
-### Product selection
-
-The `N selected` counter represents distinct products rather than individual variants. Selecting two colours of the same product still counts as one selected product.
-
----
-
-## Possible Improvements
-
-If this were going into a larger production application, the next improvements I'd consider would be:
-
-- Add unit tests for the reducer and selectors
-- Add end-to-end tests for the main bundle-building flow
-- Add higher-resolution product and variant assets
-- Add richer empty-state designs
-- Add subtle transitions to the accordion interactions
-- Connect the catalog to a real backend service
-
----
-
-## License
-
-This project was created as a frontend implementation based on the provided design.
+Built as a frontend take home based on the provided design.
