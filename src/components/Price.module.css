@@ -1,0 +1,54 @@
+.price {
+  margin: 0;
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.inline {
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stacked {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  text-align: right;
+}
+
+.compare {
+  text-decoration: line-through;
+  white-space: nowrap;
+}
+
+.current {
+  white-space: nowrap;
+}
+
+.suffix {
+  font-size: 0.85em;
+}
+
+/* Product cards: red strike-through, dark active price. */
+.card .compare {
+  color: var(--c-strike);
+}
+
+.card .current {
+  color: var(--c-ink);
+}
+
+/* Review panel: grey strike-through, purple active price. */
+.review .compare {
+  color: var(--c-strike-muted);
+  font-weight: 500;
+}
+
+.review .current {
+  color: var(--c-purple);
+}

@@ -1,0 +1,144 @@
+.step {
+  border-top: 1px solid var(--c-line);
+  border-bottom: 1px solid var(--c-line);
+  margin-top: -1px;
+  background: transparent;
+}
+
+.step[data-open] {
+  background: var(--c-panel);
+  border-color: transparent;
+  border-radius: var(--r-lg);
+}
+
+.eyebrow {
+  margin: 0;
+  padding: 7px 16px 6px;
+  font-size: var(--step-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.step[data-open] .eyebrow {
+  border-bottom-color: transparent;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  color: var(--c-ink);
+  flex: none;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--c-ink);
+}
+
+.state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: var(--c-purple);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex: none;
+}
+
+.count {
+  display: none;
+}
+
+.count[data-visible] {
+  display: inline;
+}
+
+.chevron,
+.chevronUp {
+  transition: transform 0.2s ease;
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+}
+
+.panel {
+  padding: 0 16px 18px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.nextRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.next {
+  padding: 11px 22px;
+  border: 1px solid var(--c-purple);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-purple);
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.next:hover {
+  background: var(--c-purple);
+  color: #fff;
+}
+
+/* Tablet: cards sit side by side, and collapsed steps hide the count (per the design). */
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(212px, 1fr));
+  }
+
+  .step:not([data-open]) .count {
+    display: none;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .state {
+    font-size: 14px;
+  }
+}
+
+/* Desktop: two horizontal cards per row inside the narrower builder column. */
+@media (min-width: 1080px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid > *:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    max-width: calc(50% - 7px);
+    margin: 0 auto;
+  }
+}

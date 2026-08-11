@@ -1,0 +1,62 @@
+/* Colour values sampled directly from the exported design frames. */
+:root {
+  --c-purple: #4e2fd2;
+  --c-purple-soft: #836de0;
+  --c-purple-tint: #e9e5f9;
+  --c-panel: #edf4ff;
+  --c-surface: #ffffff;
+  --c-page: #ffffff;
+
+  --c-ink: #1f1f1f;
+  --c-ink-soft: #3b3b3b;
+  --c-muted: #6f7882;
+  --c-muted-light: #98a1ad;
+
+  --c-line: #dde5ef;
+  --c-line-soft: #f0f4f7;
+  --c-chip-line: #e5e5e5;
+  --c-chip-line-active: #83d0c3;
+
+  --c-strike: #d8392b;
+  --c-strike-muted: #6f7882;
+  --c-green: #0aa288;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+  --step-eyebrow: 11px;
+  --shadow-card: 0 1px 2px rgba(31, 31, 31, 0.04);
+
+  --page-max: 1288px;
+  --gap: 24px;
+}
+
+/*
+  Gilroy is a licensed font and cannot be redistributed in this repo.
+  Drop Gilroy-SemiBold and Gilroy-Medium (woff2) into /public/fonts and the
+  faces below pick them up automatically. Until then the stack falls back to
+  Poppins, which shares Gilroy's geometric proportions closely enough that
+  layout does not shift.
+*/
+@font-face {
+  font-family: 'Gilroy';
+  src: url('/fonts/Gilroy-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('/fonts/Gilroy-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-body: 'Gilroy', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Gilroy', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}

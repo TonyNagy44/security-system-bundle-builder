@@ -1,0 +1,48 @@
+.page {
+  min-height: 100vh;
+  padding: 20px 16px 48px;
+}
+
+.layout {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+/* Mobile only, per the design frames. */
+.heading {
+  font-size: 30px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.builder {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding: 32px 24px 64px;
+  }
+
+  .heading {
+    display: none;
+  }
+}
+
+/* Desktop: builder left, review panel right and sticky. */
+@media (min-width: 1080px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 400px;
+    align-items: start;
+    gap: 30px;
+  }
+
+  .review {
+    position: sticky;
+    top: 24px;
+  }
+}

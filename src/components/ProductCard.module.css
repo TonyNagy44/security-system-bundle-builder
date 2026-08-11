@@ -1,0 +1,133 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--c-surface);
+  border: 1px solid #ececec;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card[data-selected] {
+  border-color: var(--c-purple-soft);
+  box-shadow: 0 0 0 1px var(--c-purple-soft);
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  padding: 3px 9px;
+  border-radius: var(--r-sm);
+  background: var(--c-purple);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.media {
+  display: grid;
+  place-items: center;
+  min-height: 132px;
+  padding: 8px;
+}
+
+.media img {
+  max-height: 116px;
+  width: auto;
+  object-fit: contain;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.title {
+  font-size: 16px;
+  line-height: 1.25;
+  color: var(--c-ink);
+}
+
+.description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--c-ink-soft);
+}
+
+.learnMore {
+  color: var(--c-purple);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.choose {
+  padding: 6px 16px;
+  border: 1px solid var(--c-purple);
+  border-radius: var(--r-sm);
+  color: var(--c-purple);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--c-surface);
+}
+
+.choose[data-active] {
+  background: var(--c-purple);
+  color: #fff;
+}
+
+/*
+  Desktop switches the card to a horizontal layout: photo on the left, content
+  on the right, price stacked in the bottom-right corner.
+*/
+@media (min-width: 1080px) {
+  .card {
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr);
+    align-items: start;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .media {
+    min-height: 116px;
+    padding: 0;
+  }
+
+  .media img {
+    max-height: 108px;
+  }
+
+  .badge {
+    top: 14px;
+    left: 14px;
+  }
+
+  .footer {
+    align-items: flex-end;
+  }
+
+  /* Desktop stacks the compare-at price above the active one. */
+  .footer > p {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+  }
+}
